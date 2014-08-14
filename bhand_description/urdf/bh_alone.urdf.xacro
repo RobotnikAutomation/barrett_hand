@@ -2,7 +2,7 @@
 <robot name="bhand_" xmlns:xacro="http://www.ros.org/wiki/xacro"> 
 
 	<!-- Import all Gazebo-customization elements, including Gazebo colors -->
-	<xacro:include filename="$(find bh_description)/urdf/bh282.urdf.xacro" />
+	<xacro:include filename="$(find bhand_description)/urdf/bh282.urdf.xacro" />
 
 	<link name="base_link">
 		<visual>
