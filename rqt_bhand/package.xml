@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package>
+  <name>rqt_bhand</name>
+  <version>0.1.0</version>
+  <description>The rqt_bhand package is intended to test the Barrett Hand in graphical mode</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
+  <maintainer email="rnavarro@robotnik.es">Roman Navarro</maintainer>
+
+  <license>BSD</license>
+
+
+  <url type="website">http://ros.org/wiki/rqt_bhand</url> 
+
+  <author email="rnavarro@robotnik.es">Roman Navarro</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <run_depend>python-rospkg</run_depend>
+  <run_depend>rostopic</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
+  <run_depend>bhand_controller</run_depend>
+
+  <export>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+
+</package>
