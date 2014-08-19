@@ -4,15 +4,15 @@
   <version>0.1.0</version>
   <description>The rqt_bhand package is intended to test the Barrett Hand in graphical mode</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
-  <maintainer email="rnavarro@robotnik.es">Roman Navarro</maintainer>
-
+  <maintainer email="rnavarro@robotnik.es">Román Navarro</maintainer>
+  <maintainer email="jarino@robotnik.es">Jorge Ariño</maintainer>
+  
+  <author email="rnavarro@robotnik.es">Román Navarro</author>
+  <author email="jarino@robotnik.es">Jorge Ariño</author>
   <license>BSD</license>
-
 
   <url type="website">http://ros.org/wiki/rqt_bhand</url> 
 
-  <author email="rnavarro@robotnik.es">Roman Navarro</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   

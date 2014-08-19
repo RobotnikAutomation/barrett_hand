@@ -4,11 +4,11 @@
   <version>0.1.0</version>
   <description>The barrett_hand package contains all the components to control the Barrett Hand</description>
 
-
   <maintainer email="rnavarro@robotnik.es">Román Navarro</maintainer>
- 
-
+  <maintainer email="jarino@robotnik.es">Jorge Ariño</maintainer>
+  
   <author email="rnavarro@robotnik.es">Román Navarro</author>
+  <author email="jarino@robotnik.es">Jorge Ariño</author>
   
   <license>BSD</license>
 
