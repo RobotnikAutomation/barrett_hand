@@ -12,6 +12,8 @@
   <license>BSD</license>
 
   <url type="website">http://ros.org/wiki/rqt_bhand</url> 
+  <url type="repository">https://github.com/RobotnikAutomation/barrett_hand.git</url>
+  <url type="bugtracker">https://github.com/RobotnikAutomation/barrett_hand/issues</url>
 
 
   <buildtool_depend>catkin</buildtool_depend>
