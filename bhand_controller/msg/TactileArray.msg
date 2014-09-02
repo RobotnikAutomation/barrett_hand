@@ -1,5 +1,5 @@
 Header header
-
+# Units in N/cm2
 # array sensor of the finger 1
 float32[] finger1
 # array sensor of the finger 2
