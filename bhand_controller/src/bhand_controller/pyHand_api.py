@@ -214,11 +214,12 @@ class pyHand:
 			self.init_finger(SPREAD)
 			time.sleep(2)
 			
-			self.can_reset()
+			#self.can_reset()
 			self.get_property(FINGER1, ROLE)
 			return True
 		except:
-			self.can_reset()
+			#self.can_reset()
+			
 			return False
 
 	def init_finger(self, msgID):
@@ -375,7 +376,7 @@ class pyHand:
 			@return: The value held in the property.
 		'''
 		self.write_msg(msgID, [propID])
-		#time.sleep(0.005)
+		time.sleep(0.005)
 		read_result = self.PCAN.Read(PCAN_USBBUS1)
 		self.check_error(self.PCAN, read_result[0], "read")
 		data = read_result[1].DATA
@@ -395,7 +396,7 @@ class pyHand:
 			@return: The value held in the property.
 		'''
 		self.write_msg(msgID, [propID])
-		#time.sleep(0.05)
+		time.sleep(0.005)
 		#time.sleep(0.005)
 		read_result = self.PCAN.Read(PCAN_USBBUS1)
 		self.check_error(self.PCAN, read_result[0], "read")
