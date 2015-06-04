@@ -206,9 +206,9 @@ class BHand:
 			
 		#self._enable_disable_service = rospy.Service('%s/enable_disable'%rospy.get_name(), enable_disable, self.enableDisable)
 		# PUBLISHERS
-		self._state_publisher = rospy.Publisher('%s/state'%rospy.get_name(), State)
-		self._joints_publisher = rospy.Publisher('/joint_states', JointState)
-		self._tact_array_publisher = rospy.Publisher('%s/tact_array'%rospy.get_name(), TactileArray)
+		self._state_publisher = rospy.Publisher('%s/state'%rospy.get_name(), State, queue_size=5)
+		self._joints_publisher = rospy.Publisher('/joint_states', JointState, queue_size=5)
+		self._tact_array_publisher = rospy.Publisher('%s/tact_array'%rospy.get_name(), TactileArray, queue_size=5)
 		# SUBSCRIBERS
 		self._joints_subscriber = rospy.Subscriber('%s/command'%rospy.get_name(), JointState, self.commandCallback)
 		
