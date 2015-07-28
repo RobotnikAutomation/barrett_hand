@@ -43,3 +43,5 @@ generate_messages(
 )
 
 catkin_package()
+
+catkin_install_python(PROGRAMS src/bhand_controller/bhand_node.py src/bhand_controller/puck_properties_consts.py src/bhand_controller/puck_properties_consts.py src/bhand_controller/pyHand_api.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

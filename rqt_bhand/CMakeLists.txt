@@ -13,6 +13,6 @@ install(DIRECTORY resource
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-install(PROGRAMS scripts/rqt_bhand
+install(PROGRAMS src/rqt_bhand/rqt_bhand.py 
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
