@@ -19,7 +19,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
-  <run_depend>bhand_description</run_depend>
   <run_depend>bhand_controller</run_depend>
   <run_depend>rqt_bhand</run_depend>
 
