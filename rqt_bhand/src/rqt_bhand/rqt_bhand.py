@@ -164,7 +164,7 @@ class BHandGUI(Plugin):
 		
 		# PUBLICATIONS
 		try:
-			self._publisher_command = rospy.Publisher(self._command_topic, JointState)
+			self._publisher_command = rospy.Publisher(self._command_topic, JointState, queue_size=10)
 		except ROSException, e:
 			rospy.logerr('BHandGUI: Error creating publisher for topic %s (%s)'%(self._command_topic, e))
 		
