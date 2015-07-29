@@ -2,8 +2,8 @@
 Changelog for package bhand_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2015-07-29)
+------------------
 * bhand_controller: renaming README
 * Preparing changelog
 * Modifying .gitignore, CMakelist to install the packages, removing .pyc files

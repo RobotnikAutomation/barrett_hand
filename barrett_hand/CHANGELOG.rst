@@ -2,8 +2,8 @@
 Changelog for package barrett_hand
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2015-07-29)
+------------------
 * barrett_hand: removing dependency on bhand_description
 * Preparing changelog
 * Adding changelog files
