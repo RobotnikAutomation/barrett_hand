@@ -94,6 +94,7 @@ class BHandGUI(Plugin):
 		self.orange_string = "background-color: rgb(255,128,0)"
 		self.yellow_string = "background-color: rgb(255,255,0)"
 		self.green_string = "background-color: rgb(128,255,0)"
+		self.black_string = "background-color: rgb(0,0,0)"
 		
 		self.palm_factor = max_base_spread/99
 		self.finger_factor = max_finger_spread/99
@@ -686,6 +687,8 @@ class BHandGUI(Plugin):
 						color_string = self.orange_string
 					elif 12.0 <= value and value <= 16.0:
 						color_string = self.red_string
+					else:
+						color_string = self.black_string
 					getattr(self._widget,lcd_string).setStyleSheet(color_string)
 		
 			#Finger 2
@@ -702,6 +705,8 @@ class BHandGUI(Plugin):
 						color_string = self.orange_string
 					elif 12.0 <= value and value <= 16.0:
 						color_string = self.red_string
+					else:
+						color_string = self.black_string
 					getattr(self._widget,lcd_string).setStyleSheet(color_string)
 				
 			#Finger 3
@@ -718,6 +723,8 @@ class BHandGUI(Plugin):
 						color_string = self.orange_string
 					elif 12.0 <= value and value <= 16.0:
 						color_string = self.red_string
+					else:
+						color_string = self.black_string
 					getattr(self._widget,lcd_string).setStyleSheet(color_string)
 				
 			#Palm
@@ -733,6 +740,8 @@ class BHandGUI(Plugin):
 					color_string = self.orange_string
 				elif 7.5 <= value and value <= 16.0:
 					color_string = self.red_string
+				else:
+					color_string = self.black_string
 				getattr(self._widget,lcd_string).setStyleSheet(color_string)
 		
 		
