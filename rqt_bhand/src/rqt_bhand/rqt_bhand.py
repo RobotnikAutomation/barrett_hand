@@ -68,7 +68,7 @@ class BHandGUI(Plugin):
 		# variable to store the sensor data when receives it
 		self._bhand_data = State()
 		self._joint_data = JointState()
-		self._tact_data = TactileArray()
+		self._tact_data = None
 			
 		rp = rospkg.RosPack()
 		
@@ -437,6 +437,10 @@ class BHandGUI(Plugin):
 				
 		
 	def _receive_tact_data(self, msg):
+		
+		if self._tact_data is None:
+			self._tact_data = TactileArray()
+			
 		self._tact_data = msg
 	
 			
@@ -671,7 +675,7 @@ class BHandGUI(Plugin):
 		#self.blue = 0
 		#color_string = "background-color: rgb(" + str(self.red) + "," + str(self.green) + "," + str(self.blue) + ")"
 		
-		if self._bhand_data.state == 300:
+		if self._tact_data is not None and self._bhand_data.state == 300:
 			
 			#Finger 1
 			for i in range(0,8):
