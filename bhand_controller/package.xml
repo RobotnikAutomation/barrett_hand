@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bhand_controller</name>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>The bhand_controller package is intended to control the Barrett Hand</description>
 
   <maintainer email="rnavarro@robotnik.es">Román Navarro</maintainer>

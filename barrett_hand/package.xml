@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>barrett_hand</name>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>The barrett_hand package contains all the components to control the Barrett Hand</description>
 
   <maintainer email="rnavarro@robotnik.es">Román Navarro</maintainer>

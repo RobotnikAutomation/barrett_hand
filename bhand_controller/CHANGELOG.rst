@@ -2,8 +2,8 @@
 Changelog for package bhand_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2016-08-09)
+------------------
 * indigo-0.1.1
 * Redoing CHANGELOGS
 * bhand_controller: renaming README

@@ -2,8 +2,8 @@
 Changelog for package rqt_bhand
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2016-08-09)
+------------------
 * rqt_bhand: Solved error when not receiving tactile array data
 * rqt_bhand: sets the color black if the tactile sensors range is out of range
 * indigo-0.1.1
