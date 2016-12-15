@@ -1,7 +1,8 @@
 Description
 -----------
 
-ROS package to control the Barrett Hand 
+ROS package to control the Barrett Hand.
+Supported models: BH8-280 and BH8-282
 
 
 External dependencies
