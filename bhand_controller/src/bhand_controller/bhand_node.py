@@ -189,11 +189,12 @@ class BHand:
 			@return: True if OK, False otherwise
 		'''
 		if self.can_initialized or self.hand.initialize() == True:
+			rospy.loginfo('%s:setup: ok'%rospy.get_name() )
 			self.can_initialized = True
 			return 0
 		else:
 			self.hand.can_uninit()
-			rospy.logerr('%s: Error initializing the hand'%rospy.get_name() )
+			rospy.logerr('%s:setup: Error initializing the hand'%rospy.get_name() )
 			return -1
 		
 		
