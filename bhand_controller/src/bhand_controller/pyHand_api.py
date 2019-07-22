@@ -46,6 +46,7 @@ from pcan_python.pcan_library import *
 from puck_properties_consts import*
 from ctypes import *
 import time
+import rospy
 
 BASE_TYPE = 0
 TIP_TYPE = 1
@@ -81,6 +82,8 @@ F3_TACT = 0x5A9
 PALM_TACT = 0x5C9
 TACT_ID = 0x40
 
+CAN_DELAY = 0.025
+INIT_ATTEMPTS = 5
 
 #==========================CAN_STUFF=======================================
 
@@ -145,9 +148,10 @@ class pyHand:
 		reset_result=self.PCAN.Reset(PCAN_USBBUS1)
 		try:
 			self.check_error(self.PCAN,reset_result,"reset")
-		except:
+		except Exception, e:
+			rospy.logerr('pyHand: can_reset: error: %s', e)
 			return False
-		time.sleep(0.025)
+		time.sleep(CAN_DELAY)
 		return True
 
 	def can_status(self):
@@ -155,7 +159,7 @@ class pyHand:
 		Returns the status of the CAN connection as specified in PCANBasic's GetStatus method.
 		'''
 		status_result=self.PCAN.GetStatus(PCAN_USBBUS1)
-		time.sleep(0.025)
+		time.sleep(CAN_DELAY)
 		return status_result
 
 	def can_init(self):
@@ -165,7 +169,7 @@ class pyHand:
 		# initialize self.PCAN bus
 		init_result=self.PCAN.Initialize(PCAN_USBBUS1, PCAN_BAUD_1M)
 		self.check_error(self.PCAN,init_result,"initialize")
-		time.sleep(0.025)
+		time.sleep(CAN_DELAY)
 
 	def can_uninit(self):
 		'''
@@ -188,14 +192,15 @@ class pyHand:
 			self.can_init()
 			#Reset Can bus
 			self.can_reset()
-			time.sleep(0.025)
+			time.sleep(CAN_DELAY)
 			# wake up pucks by setting the STAT(5) property to READY(2)
 			self.set_property(0x400, 5, 2)
 			time.sleep(1)
 			self.can_reset()
 			
 			return True
-		except:
+		except Exception, e:
+			rospy.logerr('pyHand: Initialize: Error: %s', e)
 			return False
 
 	def init_hand(self):
@@ -213,13 +218,24 @@ class pyHand:
 			time.sleep(3)
 			self.init_finger(SPREAD)
 			time.sleep(2)
-			
 			self.can_reset()
-			self.get_property(FINGER1, ROLE)
-			return True
-		except:
+		except Exception, e:
+			rospy.logerr('pyHand: init_hand: error: %s', e)
 			self.can_reset()
 			return False
+		
+		attempts = 0
+		
+		while attempts < INIT_ATTEMPTS:
+			try:	
+				self.get_property(FINGER1, ROLE)
+				return True
+			except Exception, e:
+				rospy.logerr('pyHand: init_hand: error: (%d) %s', attempts, e)
+				attempts += 1
+				
+		return False	
+		
 
 	def init_finger(self, msgID):
 		'''
@@ -402,7 +418,8 @@ class pyHand:
 		data = read_result[1].DATA
 		value =(0x0000100 * data[3]) + (0x0000001 * data[2])
 		return value
-
+			
+		
 		
 	def save_property(self, msgID, propID):
 		'''
@@ -739,7 +756,7 @@ class pyHand:
 			@type motors_to_check: Array[*int]
 		'''
 		while(not self.done_moving(motors_to_check)):
-			time.sleep(0.025)
+			time.sleep(CAN_DELAY)
 
 	def detect_breakaway(self, finger):
 		'''
