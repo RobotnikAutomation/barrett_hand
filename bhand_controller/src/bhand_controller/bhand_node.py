@@ -48,6 +48,7 @@ MAX_FREQ = 300.0
 
 CONTROL_MODE_POSITION = "POSITION"
 CONTROL_MODE_VELOCITY = "VELOCITY"
+CONTROL_MODE_IDLE = "IDLE"
 
 WATCHDOG_VELOCITY = 0.1	# Max time (seconds) between velocity commands before stopping the velocity
 
@@ -232,7 +233,7 @@ class BHand:
 		if self.running or not self.can_initialized:
 			return -1
 		rospy.loginfo('%s::shutdown'%rospy.get_name())
-		self.setControlMode('POSITION')
+		self.setControlMode(CONTROL_MODE_POSITION)
 		# Performs Hand shutdown
 		self.hand.can_uninit()
 		# Cancels current timers
@@ -913,21 +914,21 @@ class BHand:
 				return False
 	
 	
-	def setControlMode(self, mode):		
+	def setControlMode(self, mode, force = False):		
 		'''
 			Configures the hand to work under the desired control mode
 			@param mode: new mode
 			@type mode: string
 		'''
-		if self.control_mode == mode:
+		if force == False and self.control_mode == mode:
 			return True
 				
 		if mode == CONTROL_MODE_POSITION:
-			self.hand.set_mode(HAND_GROUP, 'IDLE')
-			
-			
+			self.hand.set_mode(HAND_GROUP, 'PID')
 		elif mode == CONTROL_MODE_VELOCITY:
 			self.hand.set_mode(HAND_GROUP, 'VEL')
+		elif mode == CONTROL_MODE_IDLE:
+			self.hand.set_mode(HAND_GROUP, 'IDLE')
 			
 		self.control_mode = mode
 	
