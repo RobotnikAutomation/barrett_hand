@@ -43,7 +43,7 @@ import time, threading
 import math
 
 DEFAULT_FREQ = 100.0
-MAX_FREQ = 250.0
+MAX_FREQ = 300.0
 
 
 CONTROL_MODE_POSITION = "POSITION"
@@ -410,34 +410,26 @@ class BHand:
 		
 		try:
 			# Reads position
-			self.hand.read_packed_position(SPREAD)
-			self.hand.read_packed_position(FINGER1)
-			self.hand.read_packed_position(FINGER2)
-			self.hand.read_packed_position(FINGER3)
+			self.hand.read_packed_position(HAND_GROUP)
 			
 			# Reads strain
-			self.hand.read_strain(FINGER1)
-			self.hand.read_strain(FINGER2)
-			self.hand.read_strain(FINGER3)
+			self.hand.read_strain(HAND_GROUP)
 			
 			# Reads temperature
 			if self.temp_command:
-				self.hand.read_temp(FINGER1)
-				self.hand.read_temp(FINGER2)
-				self.hand.read_temp(FINGER3)
-				self.hand.read_temp(SPREAD)
-				self.hand.read_therm(FINGER1)
-				self.hand.read_therm(FINGER2)
-				self.hand.read_therm(FINGER3)
-				self.hand.read_therm(SPREAD)
+				self.hand.read_temp(HAND_GROUP)
+				self.hand.read_therm(HAND_GROUP)
 				self.initReadTempTimer()
 			
 			# Reads tactile sensor cells
 			if self.tactile_sensors:
-				self.hand.read_full_tact(SPREAD)
-				self.hand.read_full_tact(FINGER1)
-				self.hand.read_full_tact(FINGER2)
-				self.hand.read_full_tact(FINGER3)
+				
+				self.hand.read_full_tact(HAND_GROUP)
+				
+				
+			# Reads ft sensors
+			#if self.ft_sensor:
+			#	self.hand.read_full_force_torque()
 				
 				
 		except Exception, e:
@@ -494,26 +486,26 @@ class BHand:
 					try:
 						f1_joint = self.joint_names['F1'][0]		
 						if self.desired_joints_position[f1_joint] != self.joint_state.position[f1_index]:
-							#print 'moving joint %s to position  %f'%(self.joint_state.name[0], self.desired_joints_position['j12_joint'])
+							#rospy.loginfo_throttle(2,'moving joint %s to position  %f'%(f1_joint, self.desired_joints_position[f1_joint]))
 							self.hand.move_to(FINGER1, self.hand.rad_to_enc(self.desired_joints_position[f1_joint], BASE_TYPE), False)
 						
 						f2_joint = self.joint_names['F2'][0]
 						if self.desired_joints_position[f2_joint] != self.joint_state.position[f2_index]:
-							#print 'moving joint %s to position  %f'%(self.joint_state.name[2], self.desired_joints_position['j22_joint'])
+							#rospy.loginfo_throttle(2,'moving joint %s to position  %f'%(f2_joint, self.desired_joints_position[f2_joint]))
 							self.hand.move_to(FINGER2, self.hand.rad_to_enc(self.desired_joints_position[f2_joint], BASE_TYPE), False)
 							
 						f3_joint = self.joint_names['F3'][0]
 						if self.desired_joints_position[f3_joint] != self.joint_state.position[f3_index]:
-							#print 'moving joint %s to position  %f'%(self.joint_state.name[4], self.desired_joints_position['j32_joint'])
+							#rospy.loginfo_throttle(2,'moving joint %s to position  %f'%(f3_joint, self.desired_joints_position[f3_joint]))
 							self.hand.move_to(FINGER3, self.hand.rad_to_enc(self.desired_joints_position[f3_joint], BASE_TYPE), False)
 							
 						spread1_joint = self.joint_names['SPREAD_1'][0]
 						spread2_joint = self.joint_names['SPREAD_2'][0]
 						if self.desired_joints_position[spread1_joint] != self.joint_state.position[spread1_index]:
-							#print 'moving joint %s to position  %f'%(self.joint_state.name[6], self.desired_joints_position['jspread_joint'])
+							#rospy.loginfo_throttle(2,'moving joint %s to position  %f'%(spread1_joint, self.desired_joints_position[spread1_joint]))
 							self.hand.move_to(SPREAD, self.hand.rad_to_enc(self.desired_joints_position[spread1_joint], SPREAD_TYPE), False)
 						elif self.desired_joints_position[spread2_joint] != self.joint_state.position[spread2_index]:
-							#print 'moving joint %s to position  %f'%(self.joint_state.name[6], self.desired_joints_position['jspread_joint'])
+							#rospy.loginfo_throttle(2,'moving joint %s to position  %f'%(spread2_joint, self.desired_joints_position[spread2_joint]))
 							self.hand.move_to(SPREAD, self.hand.rad_to_enc(self.desired_joints_position[spread2_joint], SPREAD_TYPE), False)
 						
 					except Exception, e:
