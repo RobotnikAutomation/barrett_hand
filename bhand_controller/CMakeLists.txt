@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   genmsg
   sensor_msgs
+  geometry_msgs
 )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -27,6 +28,7 @@ add_message_files(
    State.msg
    TactileArray.msg
    Service.msg
+   ForceTorque.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -40,6 +42,7 @@ add_service_files(
 generate_messages(
    DEPENDENCIES
    std_msgs  # Or other packages containing msgs
+   geometry_msgs
 )
 
 catkin_package()

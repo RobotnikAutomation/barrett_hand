@@ -35,7 +35,7 @@ import rospy
 from pyHand_api import *
 
 from std_msgs.msg import String
-from bhand_controller.msg import State, TactileArray, Service
+from bhand_controller.msg import State, TactileArray, Service, ForceTorque
 from bhand_controller.srv import Actions, SetControlMode
 from sensor_msgs.msg import JointState
 
@@ -76,6 +76,8 @@ class BHand:
 			rospy.loginfo('%s::init: Desired freq (%f) is not possible. Setting desired_freq to %f'%(rospy.get_name(), self.desired_freq, DEFAULT_FREQ))
 			self.desired_freq = DEFAULT_FREQ
 		self.tactile_sensors = args['tactile_sensors'] 
+		self.ft_sensor = args['ft_sensor']
+		self.ft_sensor_frame_id = args['ft_sensor_frame_id']
 		self.real_freq = 0.0
 		
 		joint_ids_arg = args['joint_ids']
@@ -180,6 +182,8 @@ class BHand:
 		
 		self.t_publish_state = threading.Timer(self.publish_state_timer, self.publishROSstate)
 		self.t_read_temp = threading.Timer(self.temp_read_timer, self.readTemp)
+		self.msg_ft = ForceTorque()
+		self.msg_ft.header.frame_id = self.ft_sensor_frame_id
 		
 		rospy.loginfo('%s: port %s, freq = %d, topic = %s, tactile_sensors = %s'%(rospy.get_name() , self.port, self.desired_freq, self.topic_state_name, self.tactile_sensors))
 	
@@ -190,6 +194,9 @@ class BHand:
 			@return: True if OK, False otherwise
 		'''
 		if self.can_initialized or self.hand.initialize() == True:
+			if self.ft_sensor:
+			    rospy.loginfo('%s:setup: initializing FT sensor'%rospy.get_name() )
+			    self.hand.initialize_fts()
 			rospy.loginfo('%s:setup: ok'%rospy.get_name() )
 			self.can_initialized = True
 			return 0
@@ -211,6 +218,7 @@ class BHand:
 		self._state_publisher = rospy.Publisher('%s/state'%rospy.get_name(), State, queue_size=5)
 		self._joints_publisher = rospy.Publisher('/joint_states', JointState, queue_size=5)
 		self._tact_array_publisher = rospy.Publisher('%s/tact_array'%rospy.get_name(), TactileArray, queue_size=5)
+		self._ft_sensor_publisher = rospy.Publisher('~force_torque', ForceTorque, queue_size=5)
 		# SUBSCRIBERS
 		self._joints_subscriber = rospy.Subscriber('%s/command'%rospy.get_name(), JointState, self.commandCallback)
 		
@@ -260,6 +268,7 @@ class BHand:
 		self._joints_publisher.unregister()
 		self._tact_array_publisher.unregister()
 		self._joints_subscriber.unregister()
+		self._ft_sensor_publisher.unregister()
 		self._set_control_mode_service.shutdown()
 		self._hand_service.shutdown()
 		
@@ -362,6 +371,10 @@ class BHand:
 		if self.tactile_sensors:
 			self.msg_tact_array.header.stamp = t
 			self._tact_array_publisher.publish(self.msg_tact_array)
+		
+		if self.ft_sensor:
+		    self.msg_ft.header.stamp = t
+		    self._ft_sensor_publisher.publish(self.msg_ft)
 			
 		return 0
 		
@@ -434,8 +447,8 @@ class BHand:
 				
 				
 			# Reads ft sensors
-			#if self.ft_sensor:
-			#	self.hand.read_full_force_torque()
+			if self.ft_sensor:
+				self.hand.read_full_force_torque()
 				
 				
 		except Exception, e:
@@ -482,6 +495,10 @@ class BHand:
 				self.desired_joints_position['SPREAD_2'] = 3.14
 				self.hand.move_to(SPREAD, self.hand.rad_to_enc(self.desired_joints_position['SPREAD_1'], BASE_TYPE), False)
 				self.grasp_mode = action
+				
+			elif action == Service.TARE_FTS:
+			    if self.ft_sensor:
+				self.hand.tare_fts()
 			
 		# NO pre-defined actions			
 		else: 
@@ -584,6 +601,20 @@ class BHand:
 		self.msg_state.temp_spread[0] = self.hand.get_therm(SPREAD)
 		
 		# Tactile Sensors
+		if self.tactile_sensors:
+		    self.msg_tact_array.finger1 = self.hand.get_full_tact(FINGER1)
+		    self.msg_tact_array.finger2 = self.hand.get_full_tact(FINGER2)
+		    self.msg_tact_array.finger3 = self.hand.get_full_tact(FINGER3)
+		    self.msg_tact_array.palm = self.hand.get_full_tact(SPREAD)
+		
+		if self.ft_sensor:
+		    fts = self.hand.get_fts()
+		    self.msg_ft.force.x = fts['force'][0]
+		    self.msg_ft.force.y = fts['force'][1]
+		    self.msg_ft.force.z = fts['force'][2]
+		    self.msg_ft.torque.x = fts['torque'][0]
+		    self.msg_ft.torque.y = fts['torque'][1]
+		    self.msg_ft.torque.z = fts['torque'][2]
 		
 		# Check the CAN bus status
 		self.canError(errors)
@@ -621,7 +652,7 @@ class BHand:
 		'''
 			Actions performed in shutdown state 
 		'''
-		print 'shutdownState'
+		rospy.loginfo('%s:shutdownState', rospy.get_name())
 		if self.shutdown() == 0:
 			self.switchToState(State.INIT_STATE)
 		
@@ -829,7 +860,9 @@ class BHand:
 				ret = self.hand.init_hand()
 				if ret:
 					self.hand_initialized = True
+					#self.setControlMode(self.control_mode, force = True)
 					rospy.loginfo('%s::handActions: INIT HAND service OK'%rospy.get_name() )
+					
 					return True
 				else:
 					rospy.logerr('%s::handActions: error on INIT_HAND service'%rospy.get_name() )
@@ -960,9 +993,11 @@ def main():
 	  'topic_state': 'state',
 	  'desired_freq': DEFAULT_FREQ,
 	  'tactile_sensors': True,
+	  'ft_sensor': False,
 	  'control_mode': 'POSITION',
 	  'joint_ids': [ 'F1', 'F1_TIP', 'F2', 'F2_TIP', 'F3', 'F3_TIP', 'SPREAD_1', 'SPREAD_2'],
-	  'joint_names': ['bh_j12_joint', 'bh_j13_joint', 'bh_j22_joint', 'bh_j23_joint', 'bh_j32_joint', 'bh_j31_joint', 'bh_j11_joint', 'bh_j21_joint']
+	  'joint_names': ['bh_j12_joint', 'bh_j13_joint', 'bh_j22_joint', 'bh_j23_joint', 'bh_j32_joint', 'bh_j31_joint', 'bh_j11_joint', 'bh_j21_joint'],
+	  'ft_sensor_frame_id': 'bhand_ft_sensor_link'
 	}
 	
 	args = {}
