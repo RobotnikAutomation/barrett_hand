@@ -415,6 +415,8 @@ class BHand:
 			
 			# Reads strain
 			self.hand.read_strain(HAND_GROUP)
+			#self.hand.read_strain(FINGER2)
+			#self.hand.read_strain(FINGER3)
 			
 			# Reads temperature
 			if self.temp_command:
@@ -425,7 +427,10 @@ class BHand:
 			# Reads tactile sensor cells
 			if self.tactile_sensors:
 				
-				self.hand.read_full_tact(HAND_GROUP)
+				self.hand.read_full_tact(FINGER1)
+				self.hand.read_full_tact(FINGER2)
+				self.hand.read_full_tact(FINGER3)
+				self.hand.read_full_tact(SPREAD)
 				
 				
 			# Reads ft sensors
@@ -579,22 +584,7 @@ class BHand:
 		self.msg_state.temp_spread[0] = self.hand.get_therm(SPREAD)
 		
 		# Tactile Sensors
-		self.msg_tact_array.finger1 = self.hand.get_full_tact(FINGER1)
-		self.msg_tact_array.finger2 = self.hand.get_full_tact(FINGER2)
-		self.msg_tact_array.finger3 = self.hand.get_full_tact(FINGER3)
-		self.msg_tact_array.palm = self.hand.get_full_tact(SPREAD)
 		
-		'''	e21, e22 = self.hand.get_packed_position(FINGER2, 1)
-			e31, e32 = self.hand.get_packed_position(FINGER3, 1)
-			espread, e_ = self.hand.get_packed_position(SPREAD, 1)
-			
-			self.joint_state.position[f2_index] = self.hand.enc_to_rad(e21, BASE_TYPE)
-			self.joint_state.position[f2_tip_index] = self.hand.enc_to_rad(e22, TIP_TYPE)
-			self.joint_state.position[f3_index] = self.hand.enc_to_rad(e31, BASE_TYPE)
-			self.joint_state.position[f3_tip_index] = self.hand.enc_to_rad(e32, TIP_TYPE)
-			self.joint_state.position[spread1_index] = self.joint_state.position[spread2_index] = self.hand.enc_to_rad(espread, SPREAD_TYPE)
-		'''
-		#print 'End loop'
 		# Check the CAN bus status
 		self.canError(errors)
 		

@@ -5,4 +5,4 @@ joint_names: [bh_j12_joint, bh_j13_joint, bh_j22_joint, bh_j23_joint, bh_j32_joi
 # Default control mode
 control_mode: POSITION
 # Desired freq
-desired_freq: 300.0
+desired_freq: 250.0
