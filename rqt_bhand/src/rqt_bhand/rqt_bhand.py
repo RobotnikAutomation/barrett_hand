@@ -305,7 +305,7 @@ class BHandGUI(Plugin):
 	
 	def slider_1_changed(self):
 		self.base_spread = self._widget.horizontalSlider.value() * self.palm_factor
-		if self.enable_commands and self._bhand_data.control_mode == 'POSITION':
+		if self.enable_commands and self._bhand_data.control_mode == 'PID':
 			self.send_position_command()
 		
 		
@@ -316,7 +316,7 @@ class BHandGUI(Plugin):
 			self.finger1_spread = self.finger2_spread = self.finger3_spread
 			self._widget.horizontalSlider_3.setSliderPosition(self._widget.horizontalSlider_2.value())
 			self._widget.horizontalSlider_4.setSliderPosition(self._widget.horizontalSlider_2.value())
-		if self.enable_commands and self._bhand_data.control_mode == 'POSITION':
+		if self.enable_commands and self._bhand_data.control_mode == 'PID':
 			self.send_position_command()
 		
 	def slider_3_changed(self):
@@ -325,7 +325,7 @@ class BHandGUI(Plugin):
 			self.finger3_spread = self.finger2_spread = self.finger1_spread
 			self._widget.horizontalSlider_2.setSliderPosition(self._widget.horizontalSlider_3.value())
 			self._widget.horizontalSlider_4.setSliderPosition(self._widget.horizontalSlider_3.value())
-		if self.enable_commands and self._bhand_data.control_mode == 'POSITION':
+		if self.enable_commands and self._bhand_data.control_mode == 'PID':
 			self.send_position_command()
 		
 	def slider_4_changed(self):
@@ -334,7 +334,7 @@ class BHandGUI(Plugin):
 			self.finger1_spread = self.finger2_spread = self.finger2_spread
 			self._widget.horizontalSlider_2.setSliderPosition(self._widget.horizontalSlider_4.value())
 			self._widget.horizontalSlider_3.setSliderPosition(self._widget.horizontalSlider_4.value())
-		if self.enable_commands and self._bhand_data.control_mode == 'POSITION':
+		if self.enable_commands and self._bhand_data.control_mode == 'PID':
 			self.send_position_command()
 	
 	def slider_v_spread_changed(self):
@@ -514,7 +514,7 @@ class BHandGUI(Plugin):
 		'''
 			Handles the click of this radio button
 		'''
-		self.set_control_mode('POSITION')
+		self.set_control_mode('PID')
 		self._timer_commands.stop()
 		self.stop()
 		
@@ -530,7 +530,7 @@ class BHandGUI(Plugin):
 	def set_control_mode(self, mode):	
 		'''
 			Calls the service to set the control mode of the hand
-			@param mode: Desired Bhand mode of operation ('POSITION', 'VELOCITY')
+			@param mode: Desired Bhand mode of operation ('PID', 'VELOCITY')
 			@type mode: string
 		'''			
 		try:
