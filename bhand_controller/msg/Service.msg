@@ -5,5 +5,5 @@ int32 OPEN_GRASP = 3
 int32 SET_GRASP_1 = 4
 int32 SET_GRASP_2 = 5
 int32 CLOSE_HALF_GRASP = 6
-
+int32 TARE_FTS = 7
 

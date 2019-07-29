@@ -56,31 +56,40 @@ TIP_LIMIT = 48.0
 SPREAD_LIMIT = 180.0
 
 HAND_GROUP = 0x405
+FORCE_DATA_GROUP = 0x400
 
 # CAN MSG IDs
 F1_POSITION = 0x563
 F2_POSITION = 0x583
 F3_POSITION = 0x5A3
 SPREAD_POSITION = 0x5C3
+
 F1_STRAIN	= 0x566
 F2_STRAIN	= 0x586
 F3_STRAIN	= 0x5A6
+SPREAD_STRAIN	= 0x5C6
 STRAIN_ID   = 0x99
+
 F1_MOTOR_TEMP	= 0x566
 F2_MOTOR_TEMP	= 0x586
 F3_MOTOR_TEMP	= 0x5A6
 SPREAD_MOTOR_TEMP	= 0x5C6
 MOTOR_TEMP_ID   = 0x89
+
 F1_MOTOR_THERM	= 0x566
 F2_MOTOR_THERM	= 0x586
 F3_MOTOR_THERM	= 0x5A6
 SPREAD_MOTOR_THERM	= 0x5C6
 MOTOR_THERM_ID   = 0x94
+
 F1_TACT = 0x569
 F2_TACT = 0x589
 F3_TACT = 0x5A9
 PALM_TACT = 0x5C9
 TACT_ID = 0x40
+
+FT_SENSOR_FORCE = 0x50A
+FT_SENSOR_TORQUE = 0x50B
 
 CAN_DELAY = 0.025
 INIT_ATTEMPTS = 5
@@ -102,11 +111,13 @@ class pyHand:
 		
 		self.motor_positions = {FINGER1: {'encoder': [0, 0], 'position': [0.0, 0.0]}, FINGER2: {'encoder': [0, 0], 'position': [0.0, 0.0]}, FINGER3: {'encoder': [0, 0], 'position': [0.0, 0.0]},
 		SPREAD: {'encoder': [0, 0], 'position': [0.0, 0.0]}}
-		self.strain = {FINGER1: 0, FINGER2: 0, FINGER3: 0}
+		self.strain = {FINGER1: 0, FINGER2: 0, FINGER3: 0, SPREAD: 0}
 		self.temp = {FINGER1:{ 'temp': 0.0, 'therm': 0.0}, FINGER2: { 'temp': 0.0, 'therm': 0.0}, FINGER3: { 'temp': 0.0, 'therm': 0.0},
 		 SPREAD: { 'temp': 0.0, 'therm': 0.0}}
 		self.tactile_sensor = {FINGER1: {'values': range(0,24), 'data': range(0,5)}, FINGER2: {'values': range(0,24), 'data': range(0,5)}, 
 		FINGER3: {'values': range(0,24), 'data': range(0,5)}, SPREAD: {'values': range(0,24), 'data': range(0,5)}}
+		
+		self.ft_sensor = {'force': [0.0, 0.0, 0.0], 'torque': [0.0, 0.0, 0.0]}
 		
 	def check_error(self, connection,result,location_of_error):
 		'''
@@ -245,6 +256,14 @@ class pyHand:
 			@type msgID: int
 		'''
 		self.set_property(msgID, CMD, CMD_HI)
+	
+	
+	def initialize_fts(self):
+	    '''
+		Wake pucks and tare sensor.
+	    '''
+	    self.set_property(FTS, STAT, 2)
+	    self.tare_fts()
 
 	#============================SET_AND_GET_STUFF=========================
 
@@ -1232,6 +1251,18 @@ class pyHand:
 		binstr= bin(number)[2:]
 		a= bin(int(self.onescomp(binstr),2)+1)[2:]
 		return -1*int(a,2)
+	
+	def twoscomp2(self, number, bits):
+	    '''
+	    Returns the two's complement of a number with a certain amount of bits.
+
+		@param number: The number to take the two's complement of.
+		@type number: int
+		@param bits: The size of the integer in bits.
+		@type bits: int
+	    '''
+	    return -(1<<bits) + number
+
 
 	def get_position(self, msgID, depth=0):
 		'''
@@ -1312,19 +1343,26 @@ class pyHand:
 		while msg[0] == PCAN_ERROR_OK:
 			
 			can_id = msg[1].ID
-			#print 'process_can_messages: CAN ID = %x'%can_id
+			#rospy.loginfo('pyHand:process_can_messages: message %x:%x', can_id, msg[1].DATA[0])
 			
 			if can_id in [F1_POSITION, F2_POSITION, F3_POSITION, SPREAD_POSITION]:
-				self.process_packed_position(msg[1])
-			elif can_id in [F1_STRAIN, F2_STRAIN, F3_STRAIN] and msg[1].DATA[0] == STRAIN_ID:
-				self.process_strain(msg[1])
+			    self.process_packed_position(msg[1])
+			elif can_id in [F1_STRAIN, F2_STRAIN, F3_STRAIN, SPREAD_STRAIN] and msg[1].DATA[0] == STRAIN_ID:
+			    self.process_strain(msg[1])
 			elif can_id in [F1_MOTOR_TEMP, F2_MOTOR_TEMP, F3_MOTOR_TEMP, SPREAD_MOTOR_TEMP] and msg[1].DATA[0] == MOTOR_TEMP_ID:
-				self.process_motor_temp(msg[1])
+			    self.process_motor_temp(msg[1])
 			elif can_id in [F1_MOTOR_THERM, F2_MOTOR_THERM, F3_MOTOR_THERM, SPREAD_MOTOR_THERM] and msg[1].DATA[0] == MOTOR_THERM_ID:
-				self.process_motor_therm(msg[1])
+			    self.process_motor_therm(msg[1])
 			elif can_id in [F1_TACT, F2_TACT, F3_TACT, PALM_TACT]:
-				self.process_full_tact(msg[1])
-				
+			    self.process_full_tact(msg[1])
+			elif can_id == FT_SENSOR_FORCE:
+			    self.process_force(msg[1])
+			elif can_id == FT_SENSOR_TORQUE:
+			    self.process_torque(msg[1])
+			else:
+			    rospy.logwarn('pyHand:process_can_messages: unknown message %x:[%d %d %d %d %d %d %d %d]', can_id, msg[1].DATA[0], msg[1].DATA[1],
+			    msg[1].DATA[2], msg[1].DATA[3], msg[1].DATA[4], msg[1].DATA[5], msg[1].DATA[6], msg[1].DATA[7])
+			    
 			msg = self.read_msg()
 			
 		return ret
@@ -1382,6 +1420,8 @@ class pyHand:
 			self.strain[FINGER2] = value
 		if msg.ID == F3_STRAIN:
 			self.strain[FINGER3] = value
+		if msg.ID == SPREAD_STRAIN:
+			self.strain[SPREAD] = value
 	
 	def process_motor_temp(self, msg):
 		'''
@@ -1498,7 +1538,56 @@ class pyHand:
 		#print 'Return OK : %s'%(tactileVals)
 		return tactileVals
 	
+	def process_force(self, msg):
+		'''
+			Process the CAN msgs and saves the position depending on the MSG ID
+		'''
+		data = msg.DATA
+        
+		val = data[1] * 0x100 + data[0] #raw data value
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['force'][0] = round(val/256.0, 2)
+
+		val = data[3] * 0x100 + data[2]
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['force'][1] = round(val/256.0, 2)
 		
+		val = data[5] + 0x100 + data[4] - 0x100
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['force'][2] = round(val/256.0, 2)
+		
+		
+	def process_torque(self, msg):
+		'''
+			Process the CAN msgs and saves the position depending on the MSG ID
+		'''
+		data = msg.DATA
+        
+		val = data[1] * 0x100 + data[0] #raw data value
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['torque'][0] = round(val/4096.0, 3)
+
+		val = data[3] * 0x100 + data[2]
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['torque'][1] = round(val/4096.0, 3)
+		
+		val = data[5] + 0x100 + data[4] - 0x100
+		val = val if val < 0x8000 else self.twoscomp2(val, 16)
+		self.ft_sensor['torque'][2] = round(val/4096.0, 3)
+		
+	
+	def tare_fts(self):
+		'''
+		    Tare the FTS sensor.
+		'''
+		self.set_property(FTS, FTS_FT, 0)
+	   
+	def get_fts(self):
+		'''
+		    Returns the FTS values
+		'''
+		return self.ft_sensor
+			
 	def new_temp_mail(self, fingers_to_change):
 		former_mailbox_c={}
 		for finger in fingers_to_change:
@@ -1613,4 +1702,11 @@ class pyHand:
 			
 		while result_[0] == 0:
 			result_ = self.read_msg()
+	
+	def read_full_force_torque(self):
+		'''
+			Read all tactile sensors
+		'''
+		return self.send_msg(FTS, [FTS_FT])
+		#return self.get_property(FTS, FTS_FT) 
 		
