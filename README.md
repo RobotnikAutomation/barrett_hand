@@ -1,15 +1,23 @@
-Description
------------
+# barrett_hand
 
-ROS package to control the Barrett Hand.
+
+ROS packages to control the [Barrett Hand](https://advanced.barrett.com/barretthand).
 Supported models: BH8-280 and BH8-282
 
+## bhand_controller
 
-External dependencies
----------------------
+ROS controller based on the Barrett pyHand library to command and read the state of the hand.
 
-- pcan_python. Python wrapper for the Peak-CAN driver
+## rqt_bhand
 
-		https://github.com/RobotnikAutomation/pcan_python.git
+RQT plugin to control and monitor the hand
+
+## External dependencies
+
+### pcan_python
+ 
+Python wrapper for the Peak-CAN driver
+
+Available at https://github.com/RobotnikAutomation/pcan_python.git
 
 
